@@ -6,6 +6,5 @@ urlpatterns = [
     
     path(r'usuario/', include(usuario.router.urls)),
     path(r'login/', include(login.router.urls)),
-    path(r'logout/', include(logout.router.urls)),
     
 ]
