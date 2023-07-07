@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes
 
+from api.utils.encrypt import encrypt_message,decrypt_message
+
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated & IsAdminUser])
 class UsuarioViewSet(ViewSet):
@@ -61,13 +63,16 @@ class UsuarioViewSet(ViewSet):
                 Usuario.objects.get(email_usuario=request.POST['email'])
                 return Response({'message':'El email ya se encuentra en uso'}, status=status.HTTP_409_CONFLICT)
             except Usuario.DoesNotExist:
+                texto = request.POST['texto']
+                texto = encrypt_message(texto,request.POST['password'])
+
                 usuario = Usuario.objects._create_user(
                     cedula_persona=request.POST['cedula'],
                     nombres_persona=request.POST['nombre'],
                     apellidos_persona=request.POST['apellido'],
                     telefono_persona=request.POST['telefono'],
                     email_usuario=request.POST['email'], 
-                    texto=request.POST['texto'], 
+                    texto=texto,
                     password=request.POST['password'])
                 #se registra los datos personales
 
