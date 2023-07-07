@@ -15,6 +15,19 @@ from api.utils.encrypt import encrypt_message,decrypt_message
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated & IsAdminUser])
 class UsuarioViewSet(ViewSet):
+
+    def delete(self,request,pk=None):
+        data_keys = request.data.keys()
+        if ('email' in data_keys):
+            try:
+                usuario = Usuario.objects.get(email_usuario=request.data.get('email'))
+                usuario.delete()
+
+                return Response({'message':'Se eliminó la informacion correctamente'}, status=status.HTTP_200_OK)
+            except Usuario.DoesNotExist:
+                return Response({'message':'El email no se encuentra en uso'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({'message': 'campos requeridos: email'}, status=status.HTTP_400_BAD_REQUEST)
     
     def update(self, request, pk=None):
         data_keys = request.data.keys()

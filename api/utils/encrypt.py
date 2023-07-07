@@ -33,13 +33,6 @@ def decrypt_message(encrypted_message, key):
         print("Error al descifrar")
         return None
 
-def hash_password(password):
-    hashed_password = hashlib.sha256(password.encode()).hexdigest()
-    return hashed_password
-
-def compare_passwords(input_password, stored_password):
-    hashed_input_password = hash_password(input_password)
-    return hmac.compare_digest(hashed_input_password, stored_password)
 
 
 # msg = input("ingrese mensaje: ")
