@@ -6,7 +6,7 @@ from rest_framework.decorators import authentication_classes, permission_classes
 from rest_framework.viewsets import ViewSet
 
 from api.models.usuario import Usuario
-
+from api.utils.send_email import send
 from api.utils.encrypt import encrypt_message, decrypt_message, generate_key
 from api.serializers.simple_user_serializer import SimpleUsuarioSerializer
 
@@ -30,5 +30,23 @@ class TextViewSet(ViewSet):
             
             
         return Response({'message': 'Campo requerido: password'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, pk=None):
+        data_keys = request.data.keys()
+        email = request.user.email_usuario
+        if('password' in data_keys,
+           'password_new' in data_keys):
+            usuario = Usuario.objects.get(email_usuario=email)
+            if usuario.check_password(request.data.get('password')):
+                key = generate_key(request.data.get('password_new'))
+                texto = encrypt_message(usuario.texto,key)
 
+                usuario.texto = texto
+                usuario.save()
+                cuerpo = "Se ha modificado la contraseña correctamente!\nSu nueva contraseña es: " + request.data.get('password_new')
+                send(usuario.email_usuario,"Modificación de contraseña",cuerpo)
+                return Response({'message': 'Contraseña actualizada corectamente'}, status=status.HTTP_200_OK)
+
+            return Response({'message': 'Contraseña incorrecta'}, status=status.HTTP_401_UNAUTHORIZED)
+            
    
