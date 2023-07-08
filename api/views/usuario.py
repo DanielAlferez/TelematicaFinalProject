@@ -51,14 +51,14 @@ class UsuarioViewSet(ViewSet):
                     return Response({'message': 'Contraseña incorrecta'}, status=status.HTTP_401_UNAUTHORIZED)
 
                 #usuario.set_password(request.data.get('password'))
+                if('cedula' in data_keys):
+                    usuario.nombres_persona = request.data.get('cedula')
                 if('nombres' in data_keys):
                     usuario.nombres_persona = request.data.get('nombres')
                 if('apellidos' in data_keys):
                     usuario.apellidos_persona = request.data.get('apellidos')
                 if('telefono' in data_keys):
                     usuario.telefono_persona = request.data.get('telefono')
-                if('email' in data_keys):
-                    usuario.email_usuario = request.data.get('email')
                 if('texto' in data_keys):
                     key = generate_key(request.data.get('password'))                
                     texto = encrypt_message(request.data.get('texto'),key)
@@ -66,9 +66,9 @@ class UsuarioViewSet(ViewSet):
                     usuario.cedula_persona = request.data.get('cedula')
 
                 usuario.save()
+                usuario.delete()
 
-
-                return Response({'message':'Se actualizo informacion correctamente'}, status=status.HTTP_200_OK)
+                return Response({'message':'Se actualizo informacion correctamente, por favor inicie sesión de nuevo'}, status=status.HTTP_200_OK)
             except Usuario.DoesNotExist:
                 return Response({'message':'El email no se encuentra en uso'}, status=status.HTTP_404_NOT_FOUND)
 

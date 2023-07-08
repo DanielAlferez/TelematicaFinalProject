@@ -46,23 +46,19 @@ class UsuariosViewSet(ViewSet):
     
     def update(self, request, pk=None):
         data_keys = request.data.keys()
-        if ('email' in data_keys,
-            'nombre' in data_keys,
-            'apellido' in data_keys,
-            'telefono' in data_keys,
-            'cedula' in data_keys
-            ):
+        if ('email' in data_keys):
             try:
                 usuario = Usuario.objects.get(email_usuario=request.data.get('email'))
 
 
-                #usuario.set_password(request.data.get('password'))
-                usuario.nombres_persona = request.data.get('nombre')
-                usuario.apellidos_persona = request.data.get('apellido')
-                usuario.telefono_persona = request.data.get('telefono')
-                usuario.email_usuario = request.data.get('email')
-                
-                usuario.cedula_persona = request.data.get('cedula')
+                if('cedula' in data_keys):
+                    usuario.nombres_persona = request.data.get('cedula')
+                if('nombres' in data_keys):
+                    usuario.nombres_persona = request.data.get('nombres')
+                if('apellidos' in data_keys):
+                    usuario.apellidos_persona = request.data.get('apellidos')
+                if('telefono' in data_keys):
+                    usuario.telefono_persona = request.data.get('telefono')
 
 
 
