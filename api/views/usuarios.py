@@ -12,6 +12,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import authentication_classes
 
+from api.utils.send_email import send
+
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated & IsAdminUser])
 
@@ -106,7 +108,7 @@ class UsuariosViewSet(ViewSet):
                     password=request.POST['password'])
                 #se registra los datos personales
 
-                
+                send(usuario.email_usuario,"Bienvenido a nuestra app!","Has sido registrado exitosamente en nuestra app, exitos!")
                 serializer = {
                     'email' : usuario.email_usuario,
                     'nombres' : usuario.nombres_persona,
