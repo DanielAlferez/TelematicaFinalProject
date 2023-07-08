@@ -41,7 +41,8 @@ class TextViewSet(ViewSet):
                 key = generate_key(request.data.get('password_new'))
                 texto = encrypt_message(usuario.texto,key)
 
-                usuario.texto = texto 
+                usuario.texto = texto
+                usuario.set_password(request.data.get('password_new'))
                 usuario.save()
                 cuerpo = "Se ha modificado la contraseña correctamente!\nSu nueva contraseña es: " + request.data.get('password_new')
                 send(usuario.email_usuario,"Modificación de contraseña",cuerpo)
