@@ -1,53 +1,69 @@
-from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes, permission_classes
+from rest_framework.viewsets import ViewSet
 
 from api.models.usuario import Usuario
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import IsAdminUser
 
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import authentication_classes
+from api.utils.encrypt import encrypt_message, decrypt_message, generate_key
+from api.serializers.simple_user_serializer import SimpleUsuarioSerializer
 
 @authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated & IsAdminUser])
+@permission_classes([IsAuthenticated])
 class UsuarioViewSet(ViewSet):
+     def list(self,request,pk=None):
+        email = request.user.email_usuario
+        if email:
+            usuario = Usuario.objects.filter(email_usuario=email)
+            if usuario.count() > 0:
+                serializer = SimpleUsuarioSerializer(usuario,many=True)
+                return Response({'data':serializer.data},status=status.HTTP_200_OK)
+            return Response({'message':'El email no se encuentra en uso'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'message': 'campos requeridos: email'}, status=status.HTTP_400_BAD_REQUEST) 
 
-    def delete(self,request,pk=None):
+     def delete(self,request,pk=None):
         data_keys = request.data.keys()
-        if ('email' in data_keys):
-            try:
-                usuario = Usuario.objects.get(email_usuario=request.data.get('email'))
-                usuario.delete()
+        email = request.user.email_usuario
 
-                return Response({'message':'Se eliminó la informacion correctamente'}, status=status.HTTP_200_OK)
+        if('password' in data_keys):
+            try:
+                usuario = Usuario.objects.get(email_usuario=email)
+                if usuario.check_password(request.data.get('password')):
+                    usuario.delete()
+
+                    return Response({'message':'Se eliminó la informacion correctamente'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Contraseña incorrecta'}, status=status.HTTP_401_UNAUTHORIZED)
             except Usuario.DoesNotExist:
                 return Response({'message':'El email no se encuentra en uso'}, status=status.HTTP_404_NOT_FOUND)
-
-        return Response({'message': 'campos requeridos: email'}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def update(self, request, pk=None):
+        return Response({'message': 'Campo requerido: password'}, status=status.HTTP_400_BAD_REQUEST)
+     
+     def update(self, request, pk=None):
         data_keys = request.data.keys()
-        if ('email' in data_keys,
-            'nombre' in data_keys,
-            'apellido' in data_keys,
-            'telefono' in data_keys,
-            'texto' in data_keys,
-            'cedula' in data_keys
-            ):
+        if ('password' in data_keys):
             try:
-                usuario = Usuario.objects.get(email_usuario=request.data.get('email'))
 
+                email = request.user.email_usuario
+                
+                usuario = Usuario.objects.get(email_usuario=email)
+                if not usuario.check_password(request.data.get('password')):
+                    return Response({'message': 'Contraseña incorrecta'}, status=status.HTTP_401_UNAUTHORIZED)
 
                 #usuario.set_password(request.data.get('password'))
-                usuario.nombres_persona = request.data.get('nombre')
-                usuario.apellidos_persona = request.data.get('apellido')
-                usuario.telefono_persona = request.data.get('telefono')
-                #usuario.email_persona = request.data.get('email')
-                usuario.texto = request.data.get('texto')
-                usuario.cedula_persona = request.data.get('cedula')
-
+                if('nombres' in data_keys):
+                    usuario.nombres_persona = request.data.get('nombres')
+                if('apellidos' in data_keys):
+                    usuario.apellidos_persona = request.data.get('apellidos')
+                if('telefono' in data_keys):
+                    usuario.telefono_persona = request.data.get('telefono')
+                if('email' in data_keys):
+                    usuario.email_persona = request.data.get('email')
+                if('texto' in data_keys):
+                    key = generate_key(request.data.get('password'))                
+                    texto = encrypt_message(request.data.get('texto'),key)
+                    usuario.texto = texto
+                    usuario.cedula_persona = request.data.get('cedula')
 
                 usuario.save()
 
@@ -56,44 +72,5 @@ class UsuarioViewSet(ViewSet):
             except Usuario.DoesNotExist:
                 return Response({'message':'El email no se encuentra en uso'}, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({'message': 'campos requeridos: email, apellidos, nombres, telefono, email, texto, cedula'}, status=status.HTTP_400_BAD_REQUEST)
-
-    def create(self, request):
-        data_keys = request.data.keys()
-        
-        if ('email' in data_keys,
-            'password' in data_keys,
-            'nombre' in data_keys,
-            'apellido' in data_keys,
-            'telefono' in data_keys,
-            'texto' in data_keys,
-            'cedula' in data_keys,
-            ):
-            #se registra el usuario
-            try:
-                Usuario.objects.get(email_usuario=request.POST['email'])
-                return Response({'message':'El email ya se encuentra en uso'}, status=status.HTTP_409_CONFLICT)
-            except Usuario.DoesNotExist:
-                usuario = Usuario.objects._create_user(
-                    cedula_persona=request.POST['cedula'],
-                    nombres_persona=request.POST['nombre'],
-                    apellidos_persona=request.POST['apellido'],
-                    telefono_persona=request.POST['telefono'],
-                    email_usuario=request.POST['email'], 
-                    texto=request.POST['texto'], 
-                    password=request.POST['password'])
-                #se registra los datos personales
-
-                
-                serializer = {
-                    'email' : usuario.email_usuario,
-                    'nombres' : usuario.nombres_persona,
-                    'apellidos': usuario.apellidos_persona,
-                    'telefono': usuario.telefono_persona,
-                    'cedula': usuario.cedula_persona,
-                    'texto': usuario.texto
-                }
-
-                return Response(serializer, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'message':'campos requeridos: email, password, name, lastname, phone'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'message': 'campos requeridos: PASSWORD ACTUAL'}, status=status.HTTP_400_BAD_REQUEST)
+            
