@@ -66,7 +66,7 @@ class UsuarioViewSet(ViewSet):
                     usuario.cedula_persona = request.data.get('cedula')
 
                 usuario.save()
-                usuario.delete()
+                
 
                 return Response({'message':'Se actualizo informacion correctamente, por favor inicie sesión de nuevo'}, status=status.HTTP_200_OK)
             except Usuario.DoesNotExist:

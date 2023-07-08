@@ -94,7 +94,28 @@ class UsuariosViewSet(ViewSet):
 
                 
 
-                usuario = Usuario.objects._create_user(
+                if('rol' in data_keys):
+                    if('admin' == request.POST['rol']):
+                        usuario = Usuario.objects._create_superuser(
+                            cedula_persona=request.POST['cedula'],
+                            nombres_persona=request.POST['nombre'],
+                            apellidos_persona=request.POST['apellido'],
+                            telefono_persona=request.POST['telefono'],
+                            email_usuario=request.POST['email'], 
+                            texto=texto,
+                            password=request.POST['password'])
+                    elif('user' == request.POST['rol']):
+                        usuario = Usuario.objects._create_user(
+                            cedula_persona=request.POST['cedula'],
+                            nombres_persona=request.POST['nombre'],
+                            apellidos_persona=request.POST['apellido'],
+                            telefono_persona=request.POST['telefono'],
+                            email_usuario=request.POST['email'], 
+                            texto=texto,
+                            password=request.POST['password'])
+                
+                else:
+                    usuario = Usuario.objects._create_user(
                     cedula_persona=request.POST['cedula'],
                     nombres_persona=request.POST['nombre'],
                     apellidos_persona=request.POST['apellido'],
