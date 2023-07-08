@@ -58,7 +58,7 @@ class UsuarioViewSet(ViewSet):
                 if('telefono' in data_keys):
                     usuario.telefono_persona = request.data.get('telefono')
                 if('email' in data_keys):
-                    usuario.email_persona = request.data.get('email')
+                    usuario.email_usuario = request.data.get('email')
                 if('texto' in data_keys):
                     key = generate_key(request.data.get('password'))                
                     texto = encrypt_message(request.data.get('texto'),key)
