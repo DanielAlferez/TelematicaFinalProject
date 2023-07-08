@@ -60,7 +60,7 @@ class UsuariosViewSet(ViewSet):
                 usuario.nombres_persona = request.data.get('nombre')
                 usuario.apellidos_persona = request.data.get('apellido')
                 usuario.telefono_persona = request.data.get('telefono')
-                usuario.email_persona = request.data.get('email')
+                usuario.email_usuario = request.data.get('email')
                 
                 usuario.cedula_persona = request.data.get('cedula')
 
