@@ -38,8 +38,12 @@ class TextViewSet(ViewSet):
            'password_new' in data_keys):
             usuario = Usuario.objects.get(email_usuario=email)
             if usuario.check_password(request.data.get('password')):
+                key_old = generate_key(request.data.get('password'))
+                texto_old = decrypt_message(usuario.texto,key_old)                
+                
+
                 key = generate_key(request.data.get('password_new'))
-                texto = encrypt_message(usuario.texto,key)
+                texto = encrypt_message(texto_old,key)
 
                 usuario.texto = texto
                 usuario.set_password(request.data.get('password_new'))
