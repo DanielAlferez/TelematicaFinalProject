@@ -12,7 +12,7 @@ def send(autor,titulo,cuerpo_email):
 
         # Crear objeto de mensaje
         mensaje = MIMEMultipart()
-        mensaje['From'] = 'Remitente'
+        mensaje['From'] = 'Remitente' 
         mensaje['To'] = autor
         mensaje['Subject'] = titulo
 

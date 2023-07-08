@@ -14,7 +14,7 @@ from rest_framework.decorators import authentication_classes
 
 from api.utils.send_email import send
 
-@authentication_classes([JWTAuthentication])
+@authentication_classes([JWTAuthentication]) 
 @permission_classes([IsAuthenticated & IsAdminUser])
 
 class UsuariosViewSet(ViewSet):

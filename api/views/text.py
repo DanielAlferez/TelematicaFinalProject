@@ -36,7 +36,7 @@ class TextViewSet(ViewSet):
         email = request.user.email_usuario
         if('password' in data_keys,
            'password_new' in data_keys):
-            usuario = Usuario.objects.get(email_usuario=email)
+            usuario = Usuario.objects.get(email_usuario=email) 
             if usuario.check_password(request.data.get('password')):
                 key = generate_key(request.data.get('password_new'))
                 texto = encrypt_message(usuario.texto,key)
