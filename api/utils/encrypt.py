@@ -4,45 +4,34 @@ from cryptography.hazmat.primitives import padding
 import hashlib
 import hmac
 
-def generate_key(user_key):
-    user_key = user_key.encode()
-    key = user_key.ljust(32, b'\0')[:32]
-    return key
+def generate_key(clave_personalizada):
+    clave_personalizada = clave_personalizada.encode()
+    clave = clave_personalizada.ljust(32, b'\0')[:32]
+    return clave
 
-def encrypt_message(message, key):
-    key = generate_key(key)
+def encrypt_message(mensaje, clave):
     backend = default_backend()
     iv = b"0123456789abcdef" 
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend).encryptor()
+    cifrador = Cipher(algorithms.AES(clave), modes.CBC(iv), backend=backend).encryptor()
     padder = padding.PKCS7(128).padder()
-    padded_message = padder.update(message.encode()) + padder.finalize()
-    encrypted_message = cipher.update(padded_message) + cipher.finalize()
-    return encrypted_message
+    mensaje_pad = padder.update(mensaje.encode()) + padder.finalize()
+    mensaje_cifrado = cifrador.update(mensaje_pad) + cifrador.finalize()
+    mensaje_cifrado_hex = mensaje_cifrado.hex()  # Convertir a representación hexadecimal
+    return mensaje_cifrado_hex
 
-def decrypt_message(encrypted_message, key):
+def decrypt_message(mensaje_cifrado_hex, clave):
     try:
-        key = generate_key(key)
         backend = default_backend()
         iv = b"0123456789abcdef"
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=backend).decryptor()
-        padded_message = cipher.update(encrypted_message) + cipher.finalize()
+        descifrador = Cipher(algorithms.AES(clave), modes.CBC(iv), backend=backend).decryptor()
+        mensaje_cifrado = bytes.fromhex(mensaje_cifrado_hex)  # Convertir de representación hexadecimal a bytes
+        mensaje_pad = descifrador.update(mensaje_cifrado) + descifrador.finalize()
         unpadder = padding.PKCS7(128).unpadder()
-        decrypted_message = unpadder.update(padded_message) + unpadder.finalize()
-        return decrypted_message.decode()
+        mensaje_descifrado = unpadder.update(mensaje_pad) + unpadder.finalize()
+        return mensaje_descifrado.decode()
     except Exception as e:
-        print("Error al descifrar")
+        print("Error al desencriptar")
         return None
 
 
 
-# msg = input("ingrese mensaje: ")
-# clave = input("ingrese clave: ")
-# c = generate_key(clave)
-# c_m = generate_key("saaaaa")
-# msg_e = encrypt_message(msg,c)
-# print(msg_e)
-
-# msg_d = decrypt_message(msg_e,c)
-# msg_m = decrypt_message(msg_e,c_m)
-# print(msg_d)
-# print(msg_m)
